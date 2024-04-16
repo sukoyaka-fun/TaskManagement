@@ -19,9 +19,6 @@ RUN rustup install nightly && \
 COPY build.sh /code/build.sh
 RUN chmod +x /code/build.sh
 
-# # build時にNightlyツールチェーンを使用する
-# CMD ["cargo", "+nightly", "build", "--release", "--offline"]
-
 # build.shを実行する
 CMD ["/code/build.sh"]
 
