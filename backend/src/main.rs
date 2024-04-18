@@ -3,6 +3,7 @@ use actix_web::{web, App, HttpServer};
 mod postgres;
 mod routes;
 mod user;
+mod task;
 
 fn address() -> String {
     std::env::var("ADDRESS").unwrap_or_else(|_| "127.0.0.1:8000".into())
