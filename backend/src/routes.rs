@@ -19,43 +19,57 @@ async fn list_users(pool: web::Data<Pool>) -> Result<HttpResponse, error::Error>
 
     Ok(HttpResponse::Ok().json(users))
 }
-// async fn list_users(pool: web::Data<Pool>) -> HttpResponse {
-//     let client = match pool.get().await {
-//         Ok(client) => client,
-//         Err(err) => {
-//             log::debug!("unable to get postgres client: {:?}", err);
-//             return HttpResponse::InternalServerError().json("unable to get postgres client");
-//         }
-//     };
-//     match user::User::all(&**client).await {
-//         Ok(list) => HttpResponse::Ok().json(list),
-//         Err(err) => {
-//             log::debug!("unable to fetch users: {:?}", err);
-//             return HttpResponse::InternalServerError().json("unable to fetch users");
-//         }
-//     }
-// }
 
-// #[post("/tasks")]
-// // // タスクの作成
-// async fn create_task(task_info: web::Json<task::Task>, pool: web::Data<Pool>) -> Result<HttpResponse> {
+#[post("/tasks")]
+async fn create_task(task_info: web::Json<task::Task>, pool: web::Data<Pool>) -> Result<HttpResponse, error::Error> {
+    let task_data = task_info.into_inner(); // JSONからTask構造体に変換します
+
+    let client = pool.get().await.map_err(|err| {
+        log::debug!("unable to get postgres client: {:?}", err);
+        error::ErrorInternalServerError("unable to get postgres client")
+    })?;
+
+    // 新しいタスクを挿入するクエリを準備します
+    let query = "INSERT INTO tasks (name, description, status, user_id) VALUES ($1, $2, $3, $4) RETURNING id";
+    
+    // クエリを実行し、新しいタスクのIDを取得します
+    let task_id: i32 = client.query_one(query, &[&task_data.name, &task_data.description, &task_data.status, &task_data.user_id])
+        .await
+        .map_err(|err| {
+            log::debug!("unable to execute query: {:?}", err);
+            error::ErrorInternalServerError("unable to execute query")
+        })?
+        .get(0);
+
+    // 新しいタスクのIDを含むレスポンスを返します
+    Ok(HttpResponse::Created().json(task_id))
+
+}
+
+
+// async fn create_task(task_info: web::Json<task::Task>, pool: web::Data<Pool>) -> Result<HttpResponse, error::Error> {
 //     let task_data = task_info.into_inner(); // JSONからTask構造体に変換します
 
-//     // データベース接続を取得します
-//     let conn = pool.get().await.map_err(|e| {
-//         // エラーハンドリングを行います
-//         HttpResponse::InternalServerError().body(format!("Database connection error: {}", e))
+//     let client = pool.get().await.map_err(|err| {
+//         log::debug!("unable to get postgres client: {:?}", err);
+//         error::ErrorInternalServerError("unable to get postgres client")
 //     })?;
 
+//     // データベース接続を取得します
+//     // let conn = pool.get().await.map_err(|e| {
+//     //     // エラーハンドリングを行います
+//     //     HttpResponse::InternalServerError().body(format!("Database connection error: {}", e))
+//     // })?;
+
 //     // ここでトランザクションを開始し、タスクと依存関係をデータベースに追加します
-//     let result = conn.transaction(|conn| {
+//     let result = client.transaction().await.map_err(|err| {
 //         // 以下にトランザクション内の処理を記述します
 //         // タスクをデータベースに追加するロジック
 //         // 依存関係をデータベースに追加するロジック
 //         // など...
 
 //         Ok(()) // トランザクションが正常に完了した場合はOk(())
-//     });
+//     })?;
 
 //     // トランザクションの実行結果をチェックし、レスポンスを返します
 //     match result {

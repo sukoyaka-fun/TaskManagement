@@ -14,7 +14,7 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     let pg_pool = postgres::create_pool();
-    // postgres::migrate_down(&pg_pool).await; //開発時のみ使う
+    postgres::migrate_down(&pg_pool).await; //開発時のみ使う
     postgres::migrate_up(&pg_pool).await;
 
     let address = address();
@@ -22,6 +22,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(pg_pool.clone()))
             .service(routes::list_users)
+            .service(routes::create_task)
     })
     .bind(&address)?
     .run()
