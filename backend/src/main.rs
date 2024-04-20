@@ -16,6 +16,7 @@ async fn main() -> std::io::Result<()> {
     let pg_pool = postgres::create_pool();
     postgres::migrate_down(&pg_pool).await; //開発時のみ使う
     postgres::migrate_up(&pg_pool).await;
+    postgres::insert_initialize_data(&pg_pool).await;
 
     let address = address();
     HttpServer::new(move || {

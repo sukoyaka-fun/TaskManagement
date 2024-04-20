@@ -48,6 +48,17 @@ const SCRIPTS_DOWN: [(&str, &str); 5] = [
     )
 ];
 
+const SCRIPTS_INIT_DATA_INSERT:[(&str, &str); 2] = [
+    (
+        "0001_insert_initial_users_data",
+        include_str!("../migrations/0001_insert_initial_users_data.sql"),
+    ),
+    (
+        "0002_insert_initial_tasks_data",
+        include_str!("../migrations/0002_insert_initial_tasks_data.sql"),
+    )
+];
+
 fn create_config() -> Config {
     let mut cfg = Config::new();
     if let Ok(host) = std::env::var("PG_HOST") {
@@ -71,7 +82,7 @@ pub fn create_pool() -> Pool {
         .expect("couldn't create postgres pool")
 }
 
-pub async fn migrate_up(pool: &Pool) {
+pub async fn migrate_up(pool: &Pool) { // テーブル作成を行うマイグレーション
     let mut client = pool.get().await.expect("couldn't get postgres client");
     let migration = Migration::new("migrations".to_string());
     migration
@@ -87,4 +98,20 @@ pub async fn migrate_down(pool: &Pool) { // テーブルを削除するマイグ
         .down(& **client, &SCRIPTS_DOWN)
         .await
         .expect("couldn't run migrations");
+}
+
+pub async fn insert_initialize_data(pool: &Pool) { // 初期データの投入
+    let client = pool.get().await.expect("couldn't get postgres client");
+
+    // usersテーブルの初期データ投入
+    client
+        .batch_execute(SCRIPTS_INIT_DATA_INSERT[0].1)
+        .await
+        .expect("could't run migration for initial users data");
+
+    // tasksテーブルの初期データ投入
+    client
+        .batch_execute(SCRIPTS_INIT_DATA_INSERT[1].1)
+        .await
+        .expect("could't run migration for initial tasks data");
 }
