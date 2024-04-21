@@ -3,16 +3,29 @@ import logo from "./logo.svg";
 import "./App.css";
 
 function App() {
-  /* GET /users リクエスト */
   const [message, setMessage] = useState();
+  const [tasks, setTasks] = useState([]);
+
   useEffect(() => {
+    // GET /users リクエスト
     fetch("/api/users")
       .then((res) => res.json())
       .then((res) => setMessage(`Hello with ${res.length} users`))
       .catch(console.error);
   }, [setMessage]);
 
-  /* POST /tasks リクエスト */
+  useEffect(() => {
+    // GET /tasks リクエスト
+    fetch("/api/tasks")
+      .then((res) => res.json())
+      .then((res) => {
+        setTasks(res); // 取得したタスク一覧をstateにセット
+        setMessage(`Loaded ${res.length} tasks`); // メッセージを更新
+      })
+      .catch(console.error);
+  }, []); // マウント時にのみ実行するため、第2引数は空の配列
+
+  // POST /tasks リクエスト
   const handlePostTask = () => {
     const postData = {
       name: "misawa",
@@ -40,6 +53,14 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
         <p>{message || "Loading..."}</p>
         <button onClick={handlePostTask}>Send POST Request</button> {/* POSTリクエストを送信するボタン */}
+        {/* タスク一覧を表示 */}
+        <u1>
+          {tasks.map((task) => (
+            <li key={task.id}>
+              {task.name} - {task.description} - {task.status}
+            </li>
+          ))}
+        </u1>
         <p>
           Edit <code>src/App.js</code> and save to reload.
         </p>

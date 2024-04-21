@@ -24,6 +24,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(pg_pool.clone()))
             .service(routes::list_users)
             .service(routes::create_task)
+            .service(routes::list_tasks)
     })
     .bind(&address)?
     .run()
