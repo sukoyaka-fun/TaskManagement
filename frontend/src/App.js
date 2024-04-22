@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import logo from "./logo.svg";
+import { fetchTasks, createTask } from "./api/tasks.js";
+import { fetchUsers } from "./api/users.js";
 import "./App.css";
 
 function App() {
@@ -8,16 +9,16 @@ function App() {
 
   useEffect(() => {
     // GET /users リクエスト
-    fetch("/api/users")
-      .then((res) => res.json())
-      .then((res) => setMessage(`Hello with ${res.length} users`))
+    fetchUsers()
+      .then((res) => {
+        setMessage(`Hello with ${res.length} users`); // メッセージを更新
+      })
       .catch(console.error);
-  }, [setMessage]);
+  }, []); // 第2引数は空の配列
 
   useEffect(() => {
     // GET /tasks リクエスト
-    fetch("/api/tasks")
-      .then((res) => res.json())
+    fetchTasks()
       .then((res) => {
         setTasks(res); // 取得したタスク一覧をstateにセット
         setMessage(`Loaded ${res.length} tasks`); // メッセージを更新
@@ -34,44 +35,24 @@ function App() {
       user_id: 1,
     };
 
-    fetch("/api/tasks", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(postData),
-    })
-      .then((res) => res.json())
+    createTask(postData)
       .then((data) => console.log("Response:", data))
       .catch((error) => console.error("Error:", error));
   };
 
-
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
         <p>{message || "Loading..."}</p>
         <button onClick={handlePostTask}>Send POST Request</button> {/* POSTリクエストを送信するボタン */}
         {/* タスク一覧を表示 */}
-        <u1>
+        <ul>
           {tasks.map((task) => (
             <li key={task.id}>
               {task.name} - {task.description} - {task.status}
             </li>
           ))}
-        </u1>
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        </ul>
       </header>
     </div>
   );
