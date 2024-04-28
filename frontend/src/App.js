@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { fetchTasks, createTask } from "./api/tasks.js";
-import { fetchUsers } from "./api/users.js";
-import "./App.css";
+import { fetchTasks, createTask, fetchUsers } from "./api";
+import  MainPageContainer  from "./components/MainPageContainer.js";
 
 function App() {
   const [message, setMessage] = useState();
@@ -41,20 +40,7 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>{message || "Loading..."}</p>
-        <button onClick={handlePostTask}>Send POST Request</button> {/* POSTリクエストを送信するボタン */}
-        {/* タスク一覧を表示 */}
-        <ul>
-          {tasks.map((task) => (
-            <li key={task.id}>
-              {task.name} - {task.description} - {task.status}
-            </li>
-          ))}
-        </ul>
-      </header>
-    </div>
+    <MainPageContainer />
   );
 
 }
