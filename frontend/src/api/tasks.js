@@ -1,7 +1,20 @@
+// export const fetchTasks = () => {
+//   return fetch("/api/tasks")
+//     .then((res) => res.json())
+//     .catch(console.error);
+// };
 export const fetchTasks = () => {
   return fetch("/api/tasks")
-    .then((res) => res.json())
-    .catch(console.error);
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error("Failed to fetch tasks");
+      }
+      return res.json();
+    })
+    .catch((error) => {
+      console.error("Error fetching tasks:", error);
+      throw error; // エラーをリジェクトする
+    });
 };
 
 export const createTask = (postData) => {
