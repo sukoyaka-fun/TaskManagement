@@ -8,7 +8,7 @@ import TaskList from "./TaskList";
 
 const MainPageContainer = () => {
   return (
-    <Grid container spacing={2} height={'100vh'}>
+    <Grid container height={'100vh'}>
       <Grid item xs={12} height={'15vh'}>
         <Header />
       </Grid>
