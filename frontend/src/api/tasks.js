@@ -1,8 +1,3 @@
-// export const fetchTasks = () => {
-//   return fetch("/api/tasks")
-//     .then((res) => res.json())
-//     .catch(console.error);
-// };
 export const fetchTasks = () => {
   return fetch("/api/tasks")
     .then((res) => {

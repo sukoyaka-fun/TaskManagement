@@ -4,7 +4,6 @@ import Grid from '@mui/material/Grid';
 import Typography from "@mui/material/Typography";
 
 const Task = ({task}) => {
-//   console.log(task); // タスクの内容をログに出力
   return (
     <Grid 
       container
